@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express";
+import Enquiry from "../models/Enquiry.js";
+
 const router = express.Router();
-const Enquiry = require("../models/Enquiry");
 
 // POST /api/enquiry
 router.post("/", async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
 
-    // Basic validation
     if (!name || !email || !phone) {
       return res.status(400).json({ message: "Name, email, and phone are required" });
     }
@@ -25,4 +25,4 @@ router.post("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
