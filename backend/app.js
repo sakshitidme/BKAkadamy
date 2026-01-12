@@ -6,6 +6,12 @@ import authRoutes from "./routes/authRoutes.js"
 import contactRoutes from "./routes/contactRoutes.js"
 import adminRoutes from "./routes/adminRoutes.js"
 import enquiryRoutes from"./routes/enquiryRoutes.js"
+import mediaRoutes from "./routes/mediaRoutes.js"
+import programRoutes from "./routes/programRoutes.js"
+import eventRoutes from "./routes/eventRoutes.js"
+
+
+
 dotenv.config()
 
 const app = express()
@@ -34,7 +40,12 @@ app.use("/api/auth", authRoutes)
 app.use("/api/contact", contactRoutes) 
 
 // admin routes
-app.use("/api/admin", adminRoutes) 
+app.use("/api/admin", adminRoutes)
+
+// ✅ CMS routes
+app.use("/api/media", mediaRoutes)
+app.use("/api/programs", programRoutes)
+app.use("/api/events", eventRoutes) 
 
 
 

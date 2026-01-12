@@ -4,9 +4,11 @@ import jwt from "jsonwebtoken"
 
 // ===== REGISTER USER =====
 export const registerUser = async (req, res) => {
-  const { name, email, phone, password, role } = req.body
+  let { name, email, phone, password, role } = req.body
 
   try {
+    email = email.toLowerCase()
+
     const existingUser = await User.findOne({ email })
     if (existingUser)
       return res.status(400).json({ message: "User already exists" })
@@ -28,7 +30,6 @@ export const registerUser = async (req, res) => {
     )
 
     res.status(201).json({
-      message: "User registered successfully",
       token,
       user: {
         id: user._id,
@@ -43,20 +44,33 @@ export const registerUser = async (req, res) => {
   }
 }
 
-// ===== LOGIN USER (UPDATED) =====
+// ===== LOGIN USER =====
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body
+  let { email, password } = req.body
 
   try {
+    console.log("🔍 Login attempt - Original email:", email)
+    email = email.toLowerCase()
+    console.log("🔍 Login attempt - Normalized email:", email)
+
     const user = await User.findOne({ email })
-    if (!user)
+    
+    if (!user) {
+      console.log("❌ User not found for email:", email)
+      // Debug: Show all users in DB
+      const allUsers = await User.find({}, { email: 1, name: 1 })
+      console.log("📋 All users in database:", allUsers)
       return res.status(404).json({ message: "User not found" })
+    }
+
+    console.log("✅ User found:", user.email)
 
     const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch)
+    if (!isMatch) {
+      console.log("❌ Invalid password for user:", email)
       return res.status(400).json({ message: "Invalid credentials" })
+    }
 
-    // ✅ SAVE LAST LOGIN TIME
     user.lastLogin = new Date()
     await user.save()
 
@@ -65,6 +79,8 @@ export const loginUser = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     )
+
+    console.log("✅ Login successful for:", email)
 
     res.json({
       token,
@@ -76,7 +92,7 @@ export const loginUser = async (req, res) => {
       },
     })
   } catch (err) {
-    console.error(err)
+    console.error("💥 LOGIN ERROR:", err)
     res.status(500).json({ message: "Server error" })
   }
 }
